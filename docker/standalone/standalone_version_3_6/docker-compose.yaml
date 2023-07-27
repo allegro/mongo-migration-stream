@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  mongo_standalone36:
+    image: mongo:3.6
+    restart: always
+    ports:
+      - "36100:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
