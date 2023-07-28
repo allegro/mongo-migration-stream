@@ -50,6 +50,9 @@ subprojects {
     }
 }
 
+group = "pl.allegro.tech"
+version = scmVersion.version
+
 nexusPublishing {
     repositories {
         sonatype {
