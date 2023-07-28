@@ -19,6 +19,12 @@ dependencies {
     testImplementation(Kotest.assertionsCore)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 tasks.getByName<Jar>("jar") {
     manifest {
         attributes["Main-Class"] = "pl.allegro.tech.mongomigrationstream.MainKt"
