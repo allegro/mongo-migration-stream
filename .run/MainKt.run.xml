@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MainKt" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="pl.allegro.tech.mongomigrationstream.MainKt" />
+    <module name="mongo-migration-stream.mongo-migration-stream-cli.main" />
+    <option name="PROGRAM_PARAMETERS" value="--config ./config/local/application.properties" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Dlogback.configurationFile=./config/local/logback.xml" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

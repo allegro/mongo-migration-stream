@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        tests: [ 'check', 'integrationTest' ]
+      fail-fast: false
+    name: Run ${{ matrix.tests }} on Java 11
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install mongotools
+        run: |
+          curl -o mongodb-database-tools-ubuntu2004-x86_64-100.6.0.tgz https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2004-x86_64-100.6.0.tgz;
+          tar -zxvf mongodb-database-tools-ubuntu2004-x86_64-100.6.0.tgz;
+          cd mongodb-database-tools-ubuntu2004-x86_64-100.6.0/bin;
+          cp * /usr/local/bin/
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Validate gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Execute Gradle tests
+        run: ./gradlew ${{ matrix.tests }}

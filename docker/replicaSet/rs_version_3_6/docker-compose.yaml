@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  mongo_rs36_1:
+    hostname: mongo_rs36_1
+    image: mongo:3.6
+    expose:
+      - 36301
+    ports:
+      - "36301:36301"
+    restart: always
+    command: mongod --port 36301 --replSet replicaSet36
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:36301/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+  mongo_rs36_2:
+    hostname: mongo_rs36_2
+    image: mongo:3.6
+    expose:
+      - 36302
+    ports:
+      - "36302:36302"
+    restart: always
+    command: mongod --port 36302 --replSet replicaSet36
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:36302/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+  mongo_rs36_3:
+    hostname: mongo_rs36_3
+    image: mongo:3.6
+    expose:
+      - 36303
+    ports:
+      - "36303:36303"
+    restart: always
+    command: mongod --port 36303 --replSet replicaSet36
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:36303/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+
+  mongoinit:
+    image: mongo:3.6
+    restart: "no"
+    depends_on:
+      mongo_rs36_1:
+          condition: service_healthy
+      mongo_rs36_2:
+          condition: service_healthy
+      mongo_rs36_3:
+          condition: service_healthy
+    command: >
+      mongo --host mongo_rs36_1:36301 --eval 'db = (new Mongo("mongo_rs36_1:36301")).getDB("test");
+      config = {
+      "_id" : "replicaSet36",
+      "members" : [
+        {
+          "_id" : 0,
+          "host" : "mongo_rs36_1:36301"
+        },
+        {
+          "_id" : 1,
+          "host" : "mongo_rs36_2:36302"
+        },
+        {
+          "_id" : 2,
+          "host" : "mongo_rs36_3:36303"
+        }
+      ]
+      };
+      rs.initiate(config);
+      '

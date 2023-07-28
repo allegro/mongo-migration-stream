@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  mongo_rs5_1:
+    hostname: mongo_rs5_1
+    image: mongo:5.0
+    expose:
+      - 50301
+    ports:
+      - "50301:50301"
+    restart: always
+    command: mongod --port 50301 --replSet replicaSet5
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:50301/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+  mongo_rs5_2:
+    hostname: mongo_rs5_2
+    image: mongo:5.0
+    expose:
+      - 50302
+    ports:
+      - "50302:50302"
+    restart: always
+    command: mongod --port 50302 --replSet replicaSet5
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:50302/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+  mongo_rs5_3:
+    hostname: mongo_rs5_3
+    image: mongo:5.0
+    expose:
+      - 50303
+    ports:
+      - "50303:50303"
+    restart: always
+    command: mongod --port 50303 --replSet replicaSet5
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:50303/test --quiet
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 0s
+
+  mongoinit:
+    image: mongo:5.0
+    restart: "no"
+    depends_on:
+      mongo_rs5_1:
+          condition: service_healthy
+      mongo_rs5_2:
+          condition: service_healthy
+      mongo_rs5_3:
+          condition: service_healthy
+    command: >
+      mongo --host mongo_rs5_1:50301 --eval 'db = (new Mongo("mongo_rs5_1:50301")).getDB("test");
+      config = {
+      "_id" : "replicaSet5",
+      "members" : [
+        {
+          "_id" : 0,
+          "host" : "mongo_rs5_1:50301"
+        },
+        {
+          "_id" : 1,
+          "host" : "mongo_rs5_2:50302"
+        },
+        {
+          "_id" : 2,
+          "host" : "mongo_rs5_3:50303"
+        }
+      ]
+      };
+      rs.initiate(config);
+      '
