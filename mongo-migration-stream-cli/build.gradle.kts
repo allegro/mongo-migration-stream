@@ -33,6 +33,8 @@ tasks.getByName<Jar>("jar") {
 
 tasks {
     named<ShadowJar>("shadowJar") {
+        archiveBaseName.set("mongo-migration-stream-cli")
         archiveClassifier.set("")
+        archiveVersion.set("")
     }
 }
