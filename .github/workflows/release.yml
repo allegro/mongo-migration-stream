@@ -11,6 +11,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
@@ -49,3 +51,5 @@ jobs:
       - name: Create release on GitHub
         if: github.ref == 'refs/heads/main'
         run: gh release create --generate-notes ./mongo-migration-stream-cli/build/libs/mongo-migration-stream-cli.jar
+        env:
+          GH_TOKEN: ${{ github.token }}
