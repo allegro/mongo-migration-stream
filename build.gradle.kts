@@ -29,6 +29,9 @@ subprojects {
     apply(plugin = DetektPlugin.plugin)
     apply(plugin = KtlintPlugin.plugin)
 
+    project.group = "pl.allegro.tech"
+    project.version = rootProject.scmVersion.version
+
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
         testLogging {
@@ -46,9 +49,6 @@ subprojects {
         ignoreFailures = true
     }
 }
-
-group = "pl.allegro.tech"
-version = scmVersion.version
 
 nexusPublishing {
     repositories {
