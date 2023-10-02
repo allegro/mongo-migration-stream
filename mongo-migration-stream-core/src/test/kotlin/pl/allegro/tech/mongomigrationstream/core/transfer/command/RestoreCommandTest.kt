@@ -11,7 +11,10 @@ internal class RestoreCommandTest : ShouldSpec({
         // Given:
         val properties = MongoProperties(
             "uri",
-            "dbName"
+            "dbName",
+            connectTimeoutInSeconds = 10,
+            readTimeoutInSeconds = 10,
+            serverSelectionTimeoutInSeconds = 10,
         )
         val collectionToMigrate = "collection"
         val restorePath = "/restorePath"
@@ -44,7 +47,10 @@ internal class RestoreCommandTest : ShouldSpec({
                 "username",
                 "password",
                 "admin"
-            )
+            ),
+            connectTimeoutInSeconds = 10,
+            readTimeoutInSeconds = 10,
+            serverSelectionTimeoutInSeconds = 10,
         )
         val collectionToMigrate = "collection"
         val restorePath = "/restorePath"

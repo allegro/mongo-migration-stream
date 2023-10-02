@@ -7,7 +7,8 @@ data class GeneralProperties(
     val shouldPerformSynchronization: Boolean,
     val synchronizationHandlers: Set<DetectionResultHandler>,
     val synchronizationDetectors: Set<SynchronizationDetectorType>,
-    val databaseValidators: Set<ValidatorType>
+    val databaseValidators: Set<ValidatorType>,
+    val defaultTimeoutInSeconds: Int,
 ) {
     sealed class SynchronizationHandlerType
     object LoggingSynchronizationHandler : SynchronizationHandlerType()

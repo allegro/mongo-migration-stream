@@ -68,6 +68,8 @@ internal object ApplicationPropertiesReader {
     private fun readGeneralProperties(properties: Properlty): GeneralProperties {
         val shouldPerformMigration = properties.getBoolean("perform.transfer", true)
         val shouldPerformSynchronization = properties.getBoolean("perform.synchronization", true)
+        val defaultTimeoutInSeconds = properties.getInt("perform.timeoutInSeconds", 10)
+
         val synchronizationHandlers = properties.getArray("perform.synchronization.handlers", ",")
             .map { SynchronizationHandlerTypeMapper.from(it) }
             .map {
@@ -88,7 +90,8 @@ internal object ApplicationPropertiesReader {
             shouldPerformSynchronization,
             synchronizationHandlers,
             synchronizationDetectors,
-            validators
+            validators,
+            defaultTimeoutInSeconds
         )
     }
 
@@ -105,7 +108,21 @@ internal object ApplicationPropertiesReader {
             )
         } else null
 
-        return MongoProperties(uri, dbName, authentication)
+        val connectTimeoutInSeconds = properties.getInt("$prefix.db.connectTimeoutInSeconds", 10)
+        val readTimeoutInSeconds = properties.getInt("$prefix.db.readTimeoutInSeconds", 10)
+        val serverSelectionTimeoutInSeconds = properties.getInt("$prefix.db.serverSelectionTimeoutInSeconds", 10)
+
+        val readPreference = properties["$prefix.db.readPreference"]
+
+        return MongoProperties(
+            uri,
+            dbName,
+            authentication,
+            connectTimeoutInSeconds,
+            readTimeoutInSeconds,
+            serverSelectionTimeoutInSeconds,
+            readPreference?.let(ReadPreference::valueOf)
+        )
     }
 
     private fun readCollectionsProperties(properties: Properlty): CollectionsProperties {

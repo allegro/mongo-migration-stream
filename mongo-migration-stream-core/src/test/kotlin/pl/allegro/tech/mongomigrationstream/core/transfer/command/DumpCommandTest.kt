@@ -13,6 +13,9 @@ internal class DumpCommandTest : ShouldSpec({
         val properties = MongoProperties(
             "uri",
             "dbName",
+            connectTimeoutInSeconds = 10,
+            readTimeoutInSeconds = 10,
+            serverSelectionTimeoutInSeconds = 10,
         )
         val collectionToMigrate = "collection"
         val dumpPath = "/dumpPath"
@@ -47,7 +50,10 @@ internal class DumpCommandTest : ShouldSpec({
                 "username",
                 "password",
                 "admin"
-            )
+            ),
+            connectTimeoutInSeconds = 10,
+            readTimeoutInSeconds = 10,
+            serverSelectionTimeoutInSeconds = 10,
         )
         val collectionToMigrate = "collection"
         val dumpPath = "/dumpPath"
