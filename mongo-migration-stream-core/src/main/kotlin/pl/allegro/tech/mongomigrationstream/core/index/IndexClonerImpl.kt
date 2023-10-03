@@ -2,7 +2,7 @@ package pl.allegro.tech.mongomigrationstream.core.index
 
 import com.mongodb.MongoException
 import com.mongodb.client.MongoDatabase
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 import pl.allegro.tech.mongomigrationstream.core.concurrency.MigrationExecutors
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination

@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.core.transfer.command
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.DumpUpdateEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.RestoreUpdateEvent

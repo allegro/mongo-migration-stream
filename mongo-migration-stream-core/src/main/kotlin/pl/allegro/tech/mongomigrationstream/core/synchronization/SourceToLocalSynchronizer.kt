@@ -7,8 +7,8 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.changestream.ChangeStreamDocument
 import com.mongodb.client.model.changestream.FullDocument
 import com.mongodb.reactivestreams.client.ChangeStreamPublisher
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
-import mu.KotlinLogging
 import org.bson.BsonDocument
 import pl.allegro.tech.mongomigrationstream.core.concurrency.MigrationExecutors
 import pl.allegro.tech.mongomigrationstream.core.mongo.DbCollection

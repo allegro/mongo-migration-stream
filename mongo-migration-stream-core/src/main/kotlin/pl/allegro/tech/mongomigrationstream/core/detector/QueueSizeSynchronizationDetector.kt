@@ -1,9 +1,9 @@
 package pl.allegro.tech.mongomigrationstream.core.detector
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
-import mu.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
 import pl.allegro.tech.mongomigrationstream.core.queue.EventQueue
 import pl.allegro.tech.mongomigrationstream.core.synchronization.ChangeEvent

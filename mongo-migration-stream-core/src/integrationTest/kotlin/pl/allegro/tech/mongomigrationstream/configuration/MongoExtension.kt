@@ -3,10 +3,10 @@ package pl.allegro.tech.mongomigrationstream.configuration
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.listeners.AfterProjectListener
 import io.kotest.core.listeners.AfterTestListener
 import io.kotest.core.listeners.BeforeProjectListener
-import mu.KotlinLogging
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.time.Duration
@@ -30,7 +30,7 @@ class MongoExtension(
     override suspend fun beforeProject() {
         logger.info { "Starting MongoDB containers: [$MONGO_3_6_IMAGE] and [$MONGO_6_0_IMAGE]" }
         startMongoContainersConcurrently()
-        logger.info("MongoDB containers started: [$MONGO_3_6_IMAGE : ${mongo36uri()}], [$MONGO_6_0_IMAGE: ${mongo60uri()}]")
+        logger.info { ("MongoDB containers started: [$MONGO_3_6_IMAGE : ${mongo36uri()}], [$MONGO_6_0_IMAGE: ${mongo60uri()}]") }
         mongo36client = MongoClients.create(mongo36uri())
         mongo60client = MongoClients.create(mongo60uri())
     }

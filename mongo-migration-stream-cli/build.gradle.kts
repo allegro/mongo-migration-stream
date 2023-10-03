@@ -1,28 +1,21 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id(GradleShadowPlugin.plugin) version GradleShadowPlugin.version
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
     implementation(project(":mongo-migration-stream-core"))
 
-    implementation(Logback.dependency)
-    implementation(KotlinLogging.dependency)
-    implementation(Properlty.dependency)
-    implementation(Log4jOverSlf4j.dependency)
-    implementation(Micrometer.dependency)
-    implementation(MongoDbDriver.syncDependency)
+    implementation(libs.logback)
+    implementation(libs.properlty)
+    implementation(libs.log4j)
+    implementation(libs.micrometer)
+    implementation(libs.mongo.sync)
 
+    testImplementation(libs.kotlin.logging)
     testImplementation(kotlin("test"))
-    testImplementation(Kotest.runnerJunit5)
-    testImplementation(Kotest.assertionsCore)
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
+    testImplementation(libs.bundles.kotest)
 }
 
 tasks.getByName<Jar>("jar") {

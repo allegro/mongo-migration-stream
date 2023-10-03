@@ -6,7 +6,7 @@ import dev.failsafe.Failsafe
 import dev.failsafe.RetryPolicy
 import dev.failsafe.Timeout
 import dev.failsafe.function.CheckedRunnable
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.BsonDocument
 import pl.allegro.tech.mongomigrationstream.core.concurrency.MigrationExecutors
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination

@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.core.transfer.authentication
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.core.paths.MigrationPaths
 import java.nio.file.Files
 import java.nio.file.Path

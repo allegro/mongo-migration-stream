@@ -1,12 +1,13 @@
+import io.gitlab.arturbosch.detekt.DetektPlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jlleitschuh.gradle.ktlint.KtlintPlugin
 
 plugins {
-    kotlin("jvm") version Kotlin.version apply false
-    id(AxionReleasePlugin.plugin) version AxionReleasePlugin.version
-    id(DetektPlugin.plugin) version DetektPlugin.version
-    id(KtlintPlugin.plugin) version KtlintPlugin.version
-    id(NexusPublishPlugin.plugin) version NexusPublishPlugin.version
+    kotlin("jvm") version libs.versions.kotlin
+    alias(libs.plugins.axion.release)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.nexus)
 }
 
 scmVersion {
@@ -17,17 +18,21 @@ scmVersion {
 }
 
 allprojects {
-    apply(plugin = Kotlin.plugin)
+    apply(plugin = "kotlin")
+
+    kotlin {
+        jvmToolchain(11)
+    }
 
     repositories {
         mavenCentral()
-        maven { url = uri(BigQueue.repositoryUri) }
+        maven { url = uri("https://raw.github.com/bulldog2011/bulldog-repo/master/repo/releases/") }
     }
 }
 
 subprojects {
-    apply(plugin = DetektPlugin.plugin)
-    apply(plugin = KtlintPlugin.plugin)
+    apply<DetektPlugin>()
+    apply<KtlintPlugin>()
 
     project.group = "pl.allegro.tech"
     project.version = rootProject.scmVersion.version
@@ -40,12 +45,7 @@ subprojects {
         }
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
-    }
-
     detekt {
-        toolVersion = DetektPlugin.version
         ignoreFailures = true
     }
 }

@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.infrastructure.handler
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.core.detector.DetectionResult
 import pl.allegro.tech.mongomigrationstream.core.detector.handler.DetectionResultHandler
 

@@ -1,7 +1,7 @@
 package pl.allegro.tech.mongomigrationstream.infrastructure.detector
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
-import mu.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.configuration.ApplicationProperties
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.CollectionCountSynchronizationDetectorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DbHashSynchronizationDetectorType

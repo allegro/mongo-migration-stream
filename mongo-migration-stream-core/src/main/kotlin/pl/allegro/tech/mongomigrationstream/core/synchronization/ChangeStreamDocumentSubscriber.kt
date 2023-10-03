@@ -1,9 +1,9 @@
 package pl.allegro.tech.mongomigrationstream.core.synchronization
 
 import com.mongodb.client.model.changestream.ChangeStreamDocument
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
-import mu.KotlinLogging
 import org.bson.BsonDocument
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription

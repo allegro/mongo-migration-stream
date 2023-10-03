@@ -14,7 +14,7 @@ import com.mongodb.client.model.changestream.OperationType.DELETE
 import com.mongodb.client.model.changestream.OperationType.INSERT
 import com.mongodb.client.model.changestream.OperationType.REPLACE
 import com.mongodb.client.model.changestream.OperationType.UPDATE
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.BsonDocument
 import org.bson.codecs.BsonCodecProvider
 import org.bson.codecs.BsonValueCodecProvider

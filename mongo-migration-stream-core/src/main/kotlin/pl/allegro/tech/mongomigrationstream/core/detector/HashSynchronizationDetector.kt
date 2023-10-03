@@ -1,7 +1,7 @@
 package pl.allegro.tech.mongomigrationstream.core.detector
 
 import com.mongodb.client.MongoDatabase
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
 import java.util.concurrent.CompletableFuture
