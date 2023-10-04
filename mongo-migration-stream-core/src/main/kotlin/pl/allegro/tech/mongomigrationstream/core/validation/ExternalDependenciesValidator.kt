@@ -3,6 +3,7 @@ package pl.allegro.tech.mongomigrationstream.core.validation
 import pl.allegro.tech.mongomigrationstream.configuration.ApplicationProperties
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DbAvailabilityValidatorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DestinationMissingCollectionType
+import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.MongoToolsValidatorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.SourceCollectionAvailabilityType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.ValidatorType
 import pl.allegro.tech.mongomigrationstream.infrastructure.mongo.MongoDbClients
@@ -42,6 +43,10 @@ internal object ExternalDependenciesValidator {
                 properties.collectionsProperties.destinationCollections
             )
         )
+
+        MongoToolsValidatorType -> listOf(
+            MongoToolsValidator(properties)
+        )
     }
 
     private fun performValidation(validators: List<Validator>) {
@@ -53,5 +58,5 @@ internal object ExternalDependenciesValidator {
     }
 }
 
-internal class ExternalDependencyValidationException(val causes: List<ValidationFailure>) :
+internal class ExternalDependencyValidationException(causes: List<ValidationFailure>) :
     RuntimeException(causes.joinToString { it.message })

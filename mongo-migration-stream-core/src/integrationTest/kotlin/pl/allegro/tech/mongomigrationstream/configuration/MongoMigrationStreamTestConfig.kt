@@ -51,7 +51,7 @@ internal object MongoMigrationStreamTestConfig {
         databaseValidators = setOf(
             DbAvailabilityValidatorType,
             SourceCollectionAvailabilityType,
-            DestinationMissingCollectionType
+            DestinationMissingCollectionType,
         )
     )
 
