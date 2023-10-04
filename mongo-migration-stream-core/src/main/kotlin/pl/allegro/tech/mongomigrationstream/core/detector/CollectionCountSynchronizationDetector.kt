@@ -2,10 +2,10 @@ package pl.allegro.tech.mongomigrationstream.core.detector
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
-import mu.KotlinLogging
 import org.bson.BsonDocument
 import pl.allegro.tech.mongomigrationstream.core.metrics.MigrationMetrics
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination

@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.core.transfer
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.configuration.ApplicationProperties
 import pl.allegro.tech.mongomigrationstream.core.concurrency.MigrationExecutors
 import pl.allegro.tech.mongomigrationstream.core.mongo.DbCollection

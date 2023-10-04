@@ -1,7 +1,7 @@
 package pl.allegro.tech.mongomigrationstream.core.validation
 
 import com.mongodb.client.MongoDatabase
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.Document
 
 private val logger = KotlinLogging.logger { }

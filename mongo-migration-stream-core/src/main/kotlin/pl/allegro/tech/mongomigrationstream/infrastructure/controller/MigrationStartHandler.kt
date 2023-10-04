@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.infrastructure.controller
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.configuration.ApplicationProperties
 import pl.allegro.tech.mongomigrationstream.core.performer.PerformerController
 import pl.allegro.tech.mongomigrationstream.core.validation.ExternalDependenciesValidator

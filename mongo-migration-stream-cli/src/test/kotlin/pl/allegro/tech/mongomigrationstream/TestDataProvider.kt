@@ -10,7 +10,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.Indexes
 import com.mongodb.client.model.Updates
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.BsonDocument
 import org.bson.Document
 import pl.allegro.tech.mongomigrationstream.configuration.MongoProperties

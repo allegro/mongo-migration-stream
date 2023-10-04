@@ -1,50 +1,39 @@
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-
 plugins {
     `maven-publish`
     signing
 }
 
 dependencies {
-    implementation(MongoDbDriver.syncDependency)
-    implementation(MongoDbDriver.reactiveDependency)
-    implementation(KotlinLogging.dependency)
-    implementation(Properlty.dependency)
-    implementation(Failsafe.dependency)
-    implementation(BigQueue.dependency) { exclude("log4j") }
-    implementation(Log4jOverSlf4j.dependency)
-    implementation(ApacheCommons.dependency)
-    implementation(Micrometer.dependency)
-    implementation(Guava.dependency)
+    implementation(libs.bundles.mongo.drivers)
+    implementation(libs.kotlin.logging)
+    implementation(libs.properlty)
+    implementation(libs.failsafe)
+    implementation(libs.bigqueue) { exclude("log4j") }
+    implementation(libs.log4j)
+    implementation(libs.apache.commons)
+    implementation(libs.micrometer)
+    implementation(libs.guava)
 
-    runtimeOnly(Snappy.dependency)
-    runtimeOnly(Zstd.dependency)
+    runtimeOnly(libs.bundles.compressors)
 
     testImplementation(kotlin("test"))
-    testImplementation(Kotest.runnerJunit5)
-    testImplementation(Kotest.assertionsCore)
+    testImplementation(libs.bundles.kotest)
 
-    testImplementation(platform(TestContainers.bom))
-    testImplementation(TestContainers.testContainers)
-    testImplementation(TestContainers.mongodb)
+    testImplementation(libs.bundles.testcontainers)
 
-    testImplementation(Awaitility.dependency)
-    testImplementation(Logback.dependency)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.logback)
 }
 
 java {
     withSourcesJar()
     withJavadocJar()
-
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
 }
 
 sourceSets {
     create("integrationTest") {
-        withConvention(KotlinSourceSet::class) {
-            kotlin.srcDir("src/integrationTest/kotlin")
+        kotlin {
+            srcDir("src/integrationTest/kotlin")
             resources.srcDir("src/integrationTest/resources")
             compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
             runtimeClasspath += output + compileClasspath + sourceSets["test"].runtimeClasspath
@@ -57,6 +46,10 @@ task<Test>("integrationTest") {
     group = "verification"
     testClassesDirs = sourceSets["integrationTest"].output.classesDirs
     classpath = sourceSets["integrationTest"].runtimeClasspath
+}
+
+tasks.named<ProcessResources>("processIntegrationTestResources").configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 publishing {

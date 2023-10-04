@@ -1,6 +1,6 @@
 package pl.allegro.tech.mongomigrationstream.infrastructure.controller
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import pl.allegro.tech.mongomigrationstream.core.cleanup.MigrationCleanup
 import pl.allegro.tech.mongomigrationstream.core.performer.PerformerController
 import pl.allegro.tech.mongomigrationstream.infrastructure.detector.SynchronizationDetectorFactory
