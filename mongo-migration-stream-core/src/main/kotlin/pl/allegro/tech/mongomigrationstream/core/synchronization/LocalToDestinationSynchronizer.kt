@@ -132,7 +132,7 @@ internal class LocalToDestinationSynchronizer(
         val queueSize = queue.size()
         val batchSize = batchSizeProvider.getBatchSize()
         return when {
-            queueSize == 0 -> emptyList()
+            queueSize <= 0 -> emptyList()
             queueSize <= batchSize -> pollNElementsFromQueue(queueSize, queue)
             else -> pollNElementsFromQueue(batchSize, queue)
         }
