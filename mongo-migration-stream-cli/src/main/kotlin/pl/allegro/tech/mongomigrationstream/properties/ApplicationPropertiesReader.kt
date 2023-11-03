@@ -10,6 +10,7 @@ import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DbAv
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DbHashSynchronizationDetectorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.DestinationMissingCollectionType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.LoggingSynchronizationHandler
+import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.MongoToolsValidatorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.QueueSizeSynchronizationDetectorType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.SourceCollectionAvailabilityType
 import pl.allegro.tech.mongomigrationstream.configuration.GeneralProperties.SynchronizationDetectorType
@@ -130,7 +131,9 @@ internal object ApplicationPropertiesReader {
             supportedTypes[type] ?: throw InvalidQueueFactoryType(type)
 
         class InvalidQueueFactoryType(type: String) :
-            IllegalArgumentException("Invalid queue factory type: [$type]. Possible types are: [${supportedTypes.keys}]")
+            IllegalArgumentException(
+                "Invalid queue factory type: [$type]. Possible types are: [${supportedTypes.keys}]"
+            )
     }
 
     internal object SynchronizationHandlerTypeMapper {
@@ -169,7 +172,8 @@ internal object ApplicationPropertiesReader {
         private val supportedValidators = mapOf(
             "DestinationCollectionMissing" to DestinationMissingCollectionType,
             "DbAvailability" to DbAvailabilityValidatorType,
-            "SourceCollectionAvailable" to SourceCollectionAvailabilityType
+            "SourceCollectionAvailable" to SourceCollectionAvailabilityType,
+            "MontoToolsAvailable" to MongoToolsValidatorType
         )
 
         fun from(type: String): ValidatorType =

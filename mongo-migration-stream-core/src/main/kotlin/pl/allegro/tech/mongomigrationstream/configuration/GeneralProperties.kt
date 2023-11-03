@@ -21,4 +21,5 @@ data class GeneralProperties(
     object DbAvailabilityValidatorType : ValidatorType()
     object DestinationMissingCollectionType : ValidatorType()
     object SourceCollectionAvailabilityType : ValidatorType()
+    object MongoToolsValidatorType : ValidatorType()
 }

@@ -39,4 +39,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Execute Gradle tests
-        run: ./gradlew ${{ matrix.tests }}
+        run: ./gradlew ${{ matrix.tests }} -x ktlintCheck -x detekt
