@@ -70,7 +70,7 @@ migrator.stop()     // Stops a migration
 Firstly, you need a _mongo-migration-stream_ JAR. You can either:
 
 - Download it from the [newest release page](https://github.com/allegro/mongo-migration-stream/releases), or
-- Clone project repository and execute `./gradlew fatJar` command in root project directory - a JAR file should
+- Clone project repository and execute `./gradlew shadowJar` command in root project directory - a JAR file should
   appear in `mongo-migration-stream-cli/build/libs/` directory.
 
 Secondly, you have to define a properties file specifying migration details.
@@ -96,11 +96,18 @@ collections.destination=collection1changedName,collection2changedName
 source.db.uri=mongodb://mongo_rs36_1:36301,mongo_rs36_2:36302,mongo_rs36_3:36303/?replicaSet=replicaSet36
 source.db.name=test
 source.db.authentication.enabled=false
+source.db.connectTimeoutInSeconds=10
+source.db.readTimeoutInSeconds=10
+source.db.serverSelectionTimeoutInSeconds=10
+source.db.readPreference=secondary
 
 # Destination - Replica set 5.0
 destination.db.uri=mongodb://mongo_rs5_1:50301,mongo_rs5_2:50302,mongo_rs5_3:50303/?replicaSet=replicaSet5
 destination.db.name=test
 destination.db.authentication.enabled=false
+destination.db.connectTimeoutInSeconds=10
+destination.db.readTimeoutInSeconds=10
+destination.db.serverSelectionTimeoutInSeconds=10
 ```
 
 Having both JAR and properties file, you can start the migration with a command:

@@ -52,7 +52,8 @@ internal object MongoMigrationStreamTestConfig {
             DbAvailabilityValidatorType,
             SourceCollectionAvailabilityType,
             DestinationMissingCollectionType
-        )
+        ),
+        defaultTimeoutInSeconds = 10,
     )
 
     private fun defaultPerformerProperties() = PerformerProperties(
@@ -71,13 +72,20 @@ internal object MongoMigrationStreamTestConfig {
     private fun defaultSourceDbProperties() = MongoProperties(
         uri = IntegrationTestProjectConfig.mongoExtension.mongo36uri(),
         dbName = SOURCE_DB_NAME,
-        authenticationProperties = null
+        authenticationProperties = null,
+        connectTimeoutInSeconds = 10,
+        readTimeoutInSeconds = 10,
+        serverSelectionTimeoutInSeconds = 10,
+        readPreference = ReadPreference.secondary(),
     )
 
     private fun defaultDestinationDbProperties() = MongoProperties(
         uri = IntegrationTestProjectConfig.mongoExtension.mongo60uri(),
         dbName = DESTINATION_DB_NAME,
-        authenticationProperties = null
+        authenticationProperties = null,
+        connectTimeoutInSeconds = 10,
+        readTimeoutInSeconds = 10,
+        serverSelectionTimeoutInSeconds = 10,
     )
 
     private fun defaultStateConfig() = StateConfig(LoggingStateEventHandler)
