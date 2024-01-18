@@ -41,14 +41,14 @@ internal object StateAggregator {
 
     private fun aggregateCollectionMigrationState(
         sourceToDestination: SourceToDestination,
-        events: List<StateEvent>
+        events: Map<StateEvent.Type, StateEvent>
     ): CollectionState = CollectionState(
         sourceToDestination,
         eventsToSteps(events)
     )
 
-    private fun eventsToSteps(events: List<StateEvent>): List<CollectionStep> {
-        return events.fold(mutableMapOf<StepType, CollectionStep>()) { result, migrationEvent ->
+    private fun eventsToSteps(events: Map<StateEvent.Type, StateEvent>): List<CollectionStep> {
+        return events.values.fold(mutableMapOf<StepType, CollectionStep>()) { result, migrationEvent ->
             buildSteps(result, migrationEvent)
         }.values.toList().sortedBy { it.startDate }
     }
