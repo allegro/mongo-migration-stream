@@ -4,12 +4,14 @@ import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
 import java.util.concurrent.ConcurrentHashMap
 
 internal class StateEventStore {
-    private val events: ConcurrentHashMap<SourceToDestination, List<StateEvent>> = ConcurrentHashMap()
+    private val events: ConcurrentHashMap<SourceToDestination, ConcurrentHashMap<StateEvent.Type, StateEvent>> = ConcurrentHashMap()
 
     fun storeEvent(event: StateEvent) {
-        events[event.sourceToDestination] = events.getOrDefault(event.sourceToDestination, emptyList()) + listOf(event)
+        val eventsForCollection = events.getOrDefault(event.sourceToDestination, ConcurrentHashMap())
+        eventsForCollection[event.type] = event
+        events[event.sourceToDestination] = eventsForCollection
     }
 
-    fun getEvents(sourceToDestination: SourceToDestination): List<StateEvent> = events[sourceToDestination] ?: emptyList()
-    fun getAllEvents(): Map<SourceToDestination, List<StateEvent>> = events
+    fun getEvents(sourceToDestination: SourceToDestination): Map<StateEvent.Type, StateEvent> = events[sourceToDestination] ?: emptyMap()
+    fun getAllEvents(): Map<SourceToDestination, Map<StateEvent.Type, StateEvent>> = events
 }
