@@ -112,6 +112,5 @@ java -jar mongo-migration-stream-cli.jar --config application.properties
 ## More about _mongo-migration-stream_ project
 
 You can find more information about _mongo-migration-stream_ in:
-
+- [Allegro Tech Blog post about the reasons why we've created mongo-migration-stream and how it works](https://blog.allegro.tech/2023/09/online-mongodb-migration.html),
 - TODO: Documentation
-- TODO: Allegro Tech Blog post
