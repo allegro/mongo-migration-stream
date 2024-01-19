@@ -30,6 +30,7 @@ import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.ResumeEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.SourceToLocalStartEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.StartEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.StopEvent
+import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.Type
 
 internal object StateAggregator {
     fun aggregateMigrationState(eventStore: StateEventStore): State =
@@ -41,14 +42,14 @@ internal object StateAggregator {
 
     private fun aggregateCollectionMigrationState(
         sourceToDestination: SourceToDestination,
-        events: Map<StateEvent.Type, StateEvent>
+        events: Map<Type, StateEvent>
     ): CollectionState = CollectionState(
         sourceToDestination,
         eventsToSteps(events)
     )
 
-    private fun eventsToSteps(events: Map<StateEvent.Type, StateEvent>): List<CollectionStep> {
-        return events.values.fold(mutableMapOf<StepType, CollectionStep>()) { result, migrationEvent ->
+    private fun eventsToSteps(events: Map<Type, StateEvent>): List<CollectionStep> {
+        return events.values.sortedBy { it.date }.fold(mutableMapOf<StepType, CollectionStep>()) { result, migrationEvent ->
             buildSteps(result, migrationEvent)
         }.values.toList().sortedBy { it.startDate }
     }
@@ -62,20 +63,12 @@ internal object StateAggregator {
             is SourceToLocalStartEvent -> updateSteps(steps, CollectionStep(SOURCE_TO_LOCAL, event.date))
             is DumpStartEvent -> updateSteps(steps, CollectionStep(DUMP, event.date))
             is DumpFinishEvent -> steps[DUMP]?.copy(endDate = event.date)?.let { updateSteps(steps, it) }
-            is DumpUpdateEvent -> steps[DUMP]?.copy(
-                info = (steps[DUMP]?.info ?: emptyList()) + listOf(Info(event.date, event.info))
-            )?.let { updateSteps(steps, it) }
-
+            is DumpUpdateEvent -> steps[DUMP]?.copy(info = listOf(Info(event.date, event.info)))?.let { updateSteps(steps, it) }
             is RestoreStartEvent -> updateSteps(steps, CollectionStep(RESTORE, event.date))
-            is RestoreUpdateEvent -> steps[RESTORE]?.copy(
-                info = (steps[RESTORE]?.info ?: emptyList()) + listOf(Info(event.date, event.info))
-            )?.let { updateSteps(steps, it) }
-
+            is RestoreUpdateEvent -> steps[RESTORE]?.copy(info = listOf(Info(event.date, event.info)))?.let { updateSteps(steps, it) }
             is RestoreFinishEvent -> steps[RESTORE]?.copy(endDate = event.date)?.let { updateSteps(steps, it) }
             is IndexRebuildStartEvent -> updateSteps(steps, CollectionStep(INDEX_REBUILD, event.date))
-            is IndexRebuildFinishEvent -> steps[INDEX_REBUILD]?.copy(endDate = event.date)
-                ?.let { updateSteps(steps, it) }
-
+            is IndexRebuildFinishEvent -> steps[INDEX_REBUILD]?.copy(endDate = event.date)?.let { updateSteps(steps, it) }
             is LocalToDestinationStartEvent -> updateSteps(steps, CollectionStep(LOCAL_TO_DESTINATION, event.date))
             is StopEvent -> updateSteps(steps, CollectionStep(FINISHED, event.date))
             is PauseEvent -> updateSteps(steps, CollectionStep(PAUSED, event.date))
