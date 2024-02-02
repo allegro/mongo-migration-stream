@@ -18,7 +18,8 @@ internal sealed class Command {
         private val mongoToolsPath: String,
         private val dumpPath: String,
         private val readPreference: String,
-        private val passwordConfigPath: String?
+        private val passwordConfigPath: String?,
+        private val isCompressionEnabled: Boolean?,
     ) : Command() {
         override fun prepareCommand(): List<String> = listOf(
             mongoToolsPath + "mongodump",
@@ -27,7 +28,9 @@ internal sealed class Command {
             "--collection", dbCollection.collectionName,
             "--out", dumpPath,
             "--readPreference", readPreference
-        ) + credentialsIfNotNull(dbProperties.authenticationProperties, passwordConfigPath)
+        ) + credentialsIfNotNull(
+            dbProperties.authenticationProperties, passwordConfigPath
+        ) + gzipIfNotNull(isCompressionEnabled)
 
         override fun commandName(): String {
             return "dump"
@@ -39,7 +42,8 @@ internal sealed class Command {
         private val dbCollection: DbCollection,
         private val mongoToolsPath: String,
         private val dumpPath: String,
-        private val passwordConfigPath: String?
+        private val passwordConfigPath: String?,
+        private val isCompressionEnabled: Boolean?,
     ) : Command() {
         override fun prepareCommand(): List<String> = listOf(
             mongoToolsPath + "mongorestore",
@@ -48,7 +52,9 @@ internal sealed class Command {
             "--collection", dbCollection.collectionName,
             "--dir", dumpPath,
             "--noIndexRestore"
-        ) + credentialsIfNotNull(dbProperties.authenticationProperties, passwordConfigPath)
+        ) + credentialsIfNotNull(
+            dbProperties.authenticationProperties, passwordConfigPath
+        ) + gzipIfNotNull(isCompressionEnabled)
 
         override fun commandName(): String {
             return "restore"
@@ -66,4 +72,6 @@ internal sealed class Command {
                 "--authenticationDatabase", authenticationProperties.authDbName
             )
         } else emptyList()
+
+    protected fun gzipIfNotNull(isCompressionEnabled: Boolean?): List<String> = if (isCompressionEnabled == true) listOf("--gzip") else emptyList()
 }

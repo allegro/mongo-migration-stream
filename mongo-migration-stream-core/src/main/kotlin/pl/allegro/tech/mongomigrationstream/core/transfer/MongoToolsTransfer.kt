@@ -43,6 +43,7 @@ internal class MongoToolsTransfer(
     private val mongoToolsPath = properties.performerProperties.mongoToolsPath
     private val absoluteDumpPath = Path.of(properties.performerProperties.rootPath, MigrationPaths.DUMPS_DIR).toAbsolutePath()
     private val dumpReadPreference = properties.performerProperties.dumpReadPreference
+    private val isCompressionEnabled = properties.performerProperties.isCompressionEnabled
     private val executor = MigrationExecutors.createMigratorExecutor(sourceDbCollection)
     private val commandRunners: MutableList<CommandRunner> = mutableListOf()
 
@@ -107,7 +108,8 @@ internal class MongoToolsTransfer(
         mongoToolsPath = mongoToolsPath,
         dumpPath = absoluteDumpPath.toString(),
         readPreference = dumpReadPreference.name,
-        passwordConfigPath = passwordConfigFiles.sourceConfigPath
+        passwordConfigPath = passwordConfigFiles.sourceConfigPath,
+        isCompressionEnabled = isCompressionEnabled
     )
 
     private fun runRestore(): CommandResult = runCommand(
@@ -121,7 +123,8 @@ internal class MongoToolsTransfer(
         dbCollection = destinationDbCollection,
         mongoToolsPath = mongoToolsPath,
         dumpPath = resolveCreatedDumpPath(absoluteDumpPath),
-        passwordConfigPath = passwordConfigFiles.destinationConfigPath
+        passwordConfigPath = passwordConfigFiles.destinationConfigPath,
+        isCompressionEnabled = isCompressionEnabled
     )
 
     private fun resolveCreatedDumpPath(absoluteDumpPath: Path): String = absoluteDumpPath

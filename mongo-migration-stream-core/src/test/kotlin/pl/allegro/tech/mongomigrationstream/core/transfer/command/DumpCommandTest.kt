@@ -10,20 +10,18 @@ import pl.allegro.tech.mongomigrationstream.core.transfer.command.Command.MongoD
 internal class DumpCommandTest : ShouldSpec({
     should("create dump command") {
         // Given:
-        val properties = MongoProperties(
-            "uri",
-            "dbName",
-        )
+        val properties = MongoProperties("uri", "dbName")
         val collectionToMigrate = "collection"
         val dumpPath = "/dumpPath"
         val readPreference = "primary"
         val mongoDumpCommand = MongoDumpCommand(
-            properties,
-            DbCollection(properties.dbName, collectionToMigrate),
-            "",
-            dumpPath,
-            readPreference,
-            null
+            dbProperties = properties,
+            dbCollection = DbCollection(properties.dbName, collectionToMigrate),
+            mongoToolsPath = "",
+            dumpPath = dumpPath,
+            readPreference = readPreference,
+            passwordConfigPath = null,
+            isCompressionEnabled = false
         )
         // when:
         val terminalCommand = mongoDumpCommand.prepareCommand()
@@ -41,12 +39,12 @@ internal class DumpCommandTest : ShouldSpec({
     should("should create dump command with auth data") {
         // given:
         val properties = MongoProperties(
-            "uri",
-            "dbName",
-            MongoAuthenticationProperties(
-                "username",
-                "password",
-                "admin"
+            uri = "uri",
+            dbName = "dbName",
+            authenticationProperties = MongoAuthenticationProperties(
+                username = "username",
+                password = "password",
+                authDbName = "admin"
             )
         )
         val collectionToMigrate = "collection"
@@ -54,12 +52,13 @@ internal class DumpCommandTest : ShouldSpec({
         val readPreference = "primary"
         val passwordConfigPath = "/tmp/mongomigrationstream/password_config/dump.config"
         val mongoDumpCommand = MongoDumpCommand(
-            properties,
-            DbCollection(properties.dbName, collectionToMigrate),
-            "",
-            dumpPath,
-            readPreference,
-            passwordConfigPath,
+            dbProperties = properties,
+            dbCollection = DbCollection(properties.dbName, collectionToMigrate),
+            mongoToolsPath = "",
+            dumpPath = dumpPath,
+            readPreference = readPreference,
+            passwordConfigPath = passwordConfigPath,
+            isCompressionEnabled = false
         )
         // when:
         val terminalCommand = mongoDumpCommand.prepareCommand()
@@ -74,6 +73,36 @@ internal class DumpCommandTest : ShouldSpec({
             "--username", properties.authenticationProperties!!.username,
             "--config", passwordConfigPath,
             "--authenticationDatabase", properties.authenticationProperties!!.authDbName,
+        )
+    }
+
+    should("should create dump command with gzip") {
+        // given:
+        val isCompressionEnabled = true
+        val properties = MongoProperties("uri", "dbName")
+        val collectionToMigrate = "collection"
+        val dumpPath = "/dumpPath"
+        val readPreference = "primary"
+        val mongoDumpCommand = MongoDumpCommand(
+            dbProperties = properties,
+            dbCollection = DbCollection(properties.dbName, collectionToMigrate),
+            mongoToolsPath = "",
+            dumpPath = dumpPath,
+            readPreference = readPreference,
+            passwordConfigPath = null,
+            isCompressionEnabled = isCompressionEnabled
+        )
+        // when:
+        val terminalCommand = mongoDumpCommand.prepareCommand()
+        // then:
+        terminalCommand.shouldContainExactly(
+            "mongodump",
+            "--uri", properties.uri,
+            "--db", properties.dbName,
+            "--collection", collectionToMigrate,
+            "--out", dumpPath,
+            "--readPreference", readPreference,
+            "--gzip"
         )
     }
 })

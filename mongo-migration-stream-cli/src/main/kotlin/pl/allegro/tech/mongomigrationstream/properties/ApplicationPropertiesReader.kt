@@ -55,14 +55,16 @@ internal object ApplicationPropertiesReader {
         val mongoToolsPath = properties.requiredProperty("custom.mongoToolsPath", "")
         val queueFactoryType = properties.requiredProperty("custom.queue.factory", "InMemoryCustomQueueFactory")
         val dumpReadPreference = properties.requiredProperty("custom.dumpReadPreference", ReadPreference.primary().name)
+        val isCompressionEnabled = properties.getBoolean("custom.isCompressionEnabled", false)
         val batchSize = properties.requiredProperty("custom.batchSize", "1000").toIntOrNull() ?: 1000
 
         return PerformerProperties(
-            rootPath,
-            mongoToolsPath,
-            QueueFactoryTypeMapper.from(queueFactoryType),
-            ReadPreference.valueOf(dumpReadPreference),
-            ConstantValueBatchSizeProvider(batchSize)
+            rootPath = rootPath,
+            mongoToolsPath = mongoToolsPath,
+            queueFactory = QueueFactoryTypeMapper.from(queueFactoryType),
+            dumpReadPreference = ReadPreference.valueOf(dumpReadPreference),
+            batchSizeProvider = ConstantValueBatchSizeProvider(batchSize),
+            isCompressionEnabled = isCompressionEnabled
         )
     }
 
@@ -85,11 +87,11 @@ internal object ApplicationPropertiesReader {
             .toSet()
 
         return GeneralProperties(
-            shouldPerformMigration,
-            shouldPerformSynchronization,
-            synchronizationHandlers,
-            synchronizationDetectors,
-            validators
+            shouldPerformTransfer = shouldPerformMigration,
+            shouldPerformSynchronization = shouldPerformSynchronization,
+            synchronizationHandlers = synchronizationHandlers,
+            synchronizationDetectors = synchronizationDetectors,
+            databaseValidators = validators
         )
     }
 

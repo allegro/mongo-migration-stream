@@ -8,7 +8,8 @@ data class PerformerProperties(
     val mongoToolsPath: String,
     val queueFactory: QueueFactoryType,
     val dumpReadPreference: ReadPreference,
-    val batchSizeProvider: BatchSizeProvider
+    val batchSizeProvider: BatchSizeProvider,
+    val isCompressionEnabled: Boolean,
 ) {
     sealed class QueueFactoryType
     object InMemoryQueueFactoryType : QueueFactoryType()
