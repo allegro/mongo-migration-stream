@@ -53,7 +53,8 @@ val migrator = MongoMigrationStream(
       configuration.queueFactoryType,
       startMongoMigrationStreamInfo.dumpReadPreference,
       batchSizeProvider,
-      false
+      false,
+      1
     ),
     stateConfig = StateConfig(stateEventHandler)
   ),
@@ -89,6 +90,7 @@ custom.rootPath=/tmp/mongomigrationstream/
 custom.queue.factory=BiqQueueFactory
 custom.dumpReadPreference=primary
 custom.isCompressionEnabled=false
+custom.insertionWorkersPerCollection=1
 custom.batchSize=1000
 
 collections.source=collection1,collection2

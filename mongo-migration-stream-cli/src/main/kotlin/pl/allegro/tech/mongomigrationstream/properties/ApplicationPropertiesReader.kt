@@ -56,6 +56,7 @@ internal object ApplicationPropertiesReader {
         val queueFactoryType = properties.requiredProperty("custom.queue.factory", "InMemoryCustomQueueFactory")
         val dumpReadPreference = properties.requiredProperty("custom.dumpReadPreference", ReadPreference.primary().name)
         val isCompressionEnabled = properties.getBoolean("custom.isCompressionEnabled", false)
+        val insertionWorkersPerCollection = properties.getInt("custom.insertionWorkersPerCollection", 1)
         val batchSize = properties.requiredProperty("custom.batchSize", "1000").toIntOrNull() ?: 1000
 
         return PerformerProperties(
@@ -64,7 +65,8 @@ internal object ApplicationPropertiesReader {
             queueFactory = QueueFactoryTypeMapper.from(queueFactoryType),
             dumpReadPreference = ReadPreference.valueOf(dumpReadPreference),
             batchSizeProvider = ConstantValueBatchSizeProvider(batchSize),
-            isCompressionEnabled = isCompressionEnabled
+            isCompressionEnabled = isCompressionEnabled,
+            insertionWorkersPerCollection = insertionWorkersPerCollection
         )
     }
 

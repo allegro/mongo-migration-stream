@@ -18,8 +18,9 @@ internal class RestoreCommandTest : ShouldSpec({
             dbCollection = DbCollection(properties.dbName, collectionToMigrate),
             mongoToolsPath = "",
             dumpPath = restorePath,
+            isCompressionEnabled = false,
+            insertionWorkersPerCollection = 1,
             passwordConfigPath = null,
-            isCompressionEnabled = false
         )
         // when:
         val terminalCommand = mongoRestoreCommand.prepareCommand()
@@ -53,8 +54,9 @@ internal class RestoreCommandTest : ShouldSpec({
             dbCollection = DbCollection(properties.dbName, collectionToMigrate),
             mongoToolsPath = "",
             dumpPath = restorePath,
+            isCompressionEnabled = false,
+            insertionWorkersPerCollection = 1,
             passwordConfigPath = passwordConfigPath,
-            isCompressionEnabled = false
         )
         // when:
         val terminalCommand = mongoRestoreCommand.prepareCommand()
@@ -83,8 +85,9 @@ internal class RestoreCommandTest : ShouldSpec({
             dbCollection = DbCollection(properties.dbName, collectionToMigrate),
             mongoToolsPath = "",
             dumpPath = restorePath,
+            isCompressionEnabled = isCompressionEnabled,
+            insertionWorkersPerCollection = 1,
             passwordConfigPath = null,
-            isCompressionEnabled = isCompressionEnabled
         )
         // when:
         val terminalCommand = mongoRestoreCommand.prepareCommand()
@@ -97,6 +100,35 @@ internal class RestoreCommandTest : ShouldSpec({
             "--dir", restorePath,
             "--noIndexRestore",
             "--gzip"
+        )
+    }
+
+    should("create restore command with number of insertion workers per collection") {
+        // given:
+        val numberOfInsertionWorkersPerCollection = 5
+        val properties = MongoProperties("uri", "dbName")
+        val collectionToMigrate = "collection"
+        val restorePath = "/restorePath"
+        val mongoRestoreCommand = MongoRestoreCommand(
+            dbProperties = properties,
+            dbCollection = DbCollection(properties.dbName, collectionToMigrate),
+            mongoToolsPath = "",
+            dumpPath = restorePath,
+            isCompressionEnabled = false,
+            insertionWorkersPerCollection = numberOfInsertionWorkersPerCollection,
+            passwordConfigPath = null,
+        )
+        // when:
+        val terminalCommand = mongoRestoreCommand.prepareCommand()
+        // then:
+        terminalCommand.shouldContainExactly(
+            "mongorestore",
+            "--uri", properties.uri,
+            "--db", properties.dbName,
+            "--collection", collectionToMigrate,
+            "--dir", restorePath,
+            "--noIndexRestore",
+            "--numInsertionWorkersPerCollection", numberOfInsertionWorkersPerCollection.toString()
         )
     }
 })
