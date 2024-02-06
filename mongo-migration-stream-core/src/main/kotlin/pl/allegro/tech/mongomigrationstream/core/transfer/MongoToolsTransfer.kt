@@ -132,8 +132,10 @@ internal class MongoToolsTransfer(
     private fun resolveCreatedDumpPath(absoluteDumpPath: Path): String = absoluteDumpPath
         .resolve(sourceDbCollection.dbName)
         // Due to issue with mongodump: https://www.mongodb.com/community/forums/t/mongodump-escaping-special-collection-characters/9233
-        .resolve("${URLEncoder.encode(sourceDbCollection.collectionName, "UTF-8")}.bson")
+        .resolve(URLEncoder.encode(sourceDbCollection.collectionName, "UTF-8") + dumpFileExtension())
         .absolutePathString()
+
+    private fun dumpFileExtension(): String = if (isCompressionEnabled) ".bson.gz" else ".bson"
 
     private fun CommandResult.isSuccessful(): Boolean = this.exitCode == 0
 }
