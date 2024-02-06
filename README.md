@@ -28,7 +28,7 @@ Firstly, add _mongo-migration-stream_ as a dependency to your project:
 
 ```gradle
 dependencies {
-    implementation("pl.allegro.tech:mongo-migration-stream:0.6.1")
+    implementation("pl.allegro.tech:mongo-migration-stream:0.9.0")
 }
 ```
 
@@ -52,7 +52,9 @@ val migrator = MongoMigrationStream(
       configuration.mongoToolsPath,
       configuration.queueFactoryType,
       startMongoMigrationStreamInfo.dumpReadPreference,
-      batchSizeProvider
+      batchSizeProvider,
+      false,
+      1
     ),
     stateConfig = StateConfig(stateEventHandler)
   ),
@@ -70,7 +72,7 @@ migrator.stop()     // Stops a migration
 Firstly, you need a _mongo-migration-stream_ JAR. You can either:
 
 - Download it from the [newest release page](https://github.com/allegro/mongo-migration-stream/releases), or
-- Clone project repository and execute `./gradlew fatJar` command in root project directory - a JAR file should
+- Clone project repository and execute `./gradlew shadowJar` command in root project directory - a JAR file should
   appear in `mongo-migration-stream-cli/build/libs/` directory.
 
 Secondly, you have to define a properties file specifying migration details.
@@ -87,6 +89,8 @@ perform.synchronization.validators=DbAvailability,DestinationCollectionMissing,S
 custom.rootPath=/tmp/mongomigrationstream/
 custom.queue.factory=BiqQueueFactory
 custom.dumpReadPreference=primary
+custom.isCompressionEnabled=false
+custom.insertionWorkersPerCollection=1
 custom.batchSize=1000
 
 collections.source=collection1,collection2

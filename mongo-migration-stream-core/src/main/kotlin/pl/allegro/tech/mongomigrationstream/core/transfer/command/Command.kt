@@ -4,6 +4,9 @@ import pl.allegro.tech.mongomigrationstream.configuration.MongoProperties
 import pl.allegro.tech.mongomigrationstream.configuration.MongoProperties.MongoAuthenticationProperties
 import pl.allegro.tech.mongomigrationstream.core.mongo.DbCollection
 
+// https://www.mongodb.com/docs/database-tools/mongorestore/#std-option-mongorestore.--numInsertionWorkersPerCollection
+private const val DEFAULT_INSERTION_WORKERS_PER_COLLECTION = 1
+
 internal sealed class Command {
     abstract fun prepareCommand(): List<String>
 
@@ -18,7 +21,8 @@ internal sealed class Command {
         private val mongoToolsPath: String,
         private val dumpPath: String,
         private val readPreference: String,
-        private val passwordConfigPath: String?
+        private val isCompressionEnabled: Boolean,
+        private val passwordConfigPath: String?,
     ) : Command() {
         override fun prepareCommand(): List<String> = listOf(
             mongoToolsPath + "mongodump",
@@ -27,7 +31,10 @@ internal sealed class Command {
             "--collection", dbCollection.collectionName,
             "--out", dumpPath,
             "--readPreference", readPreference
-        ) + credentialsIfNotNull(dbProperties.authenticationProperties, passwordConfigPath)
+        ) + gzipIfCompressionEnabled(isCompressionEnabled) + credentialsIfNotNull(
+            dbProperties.authenticationProperties,
+            passwordConfigPath
+        )
 
         override fun commandName(): String {
             return "dump"
@@ -39,7 +46,9 @@ internal sealed class Command {
         private val dbCollection: DbCollection,
         private val mongoToolsPath: String,
         private val dumpPath: String,
-        private val passwordConfigPath: String?
+        private val isCompressionEnabled: Boolean,
+        private val insertionWorkersPerCollection: Int,
+        private val passwordConfigPath: String?,
     ) : Command() {
         override fun prepareCommand(): List<String> = listOf(
             mongoToolsPath + "mongorestore",
@@ -48,7 +57,14 @@ internal sealed class Command {
             "--collection", dbCollection.collectionName,
             "--dir", dumpPath,
             "--noIndexRestore"
-        ) + credentialsIfNotNull(dbProperties.authenticationProperties, passwordConfigPath)
+        ) + gzipIfCompressionEnabled(
+            isCompressionEnabled
+        ) + insertionWorkersPerCollectionIfOtherThanDefault(
+            insertionWorkersPerCollection
+        ) + credentialsIfNotNull(
+            dbProperties.authenticationProperties,
+            passwordConfigPath
+        )
 
         override fun commandName(): String {
             return "restore"
@@ -66,4 +82,13 @@ internal sealed class Command {
                 "--authenticationDatabase", authenticationProperties.authDbName
             )
         } else emptyList()
+
+    protected fun gzipIfCompressionEnabled(isCompressionEnabled: Boolean): List<String> =
+        if (isCompressionEnabled) listOf("--gzip") else emptyList()
+
+    protected fun insertionWorkersPerCollectionIfOtherThanDefault(insertionWorkersPerCollection: Int): List<String> =
+        if (insertionWorkersPerCollection != DEFAULT_INSERTION_WORKERS_PER_COLLECTION) listOf(
+            "--numInsertionWorkersPerCollection",
+            insertionWorkersPerCollection.toString()
+        ) else emptyList()
 }
