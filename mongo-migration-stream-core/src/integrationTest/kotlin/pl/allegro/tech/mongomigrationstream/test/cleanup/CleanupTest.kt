@@ -36,7 +36,9 @@ internal class CleanupTest : ShouldSpec({
                     mongoToolsPath = "",
                     queueFactory = PerformerProperties.BiqQueueFactoryType,
                     dumpReadPreference = ReadPreference.primary(),
-                    batchSizeProvider = ConstantValueBatchSizeProvider(1000)
+                    batchSizeProvider = ConstantValueBatchSizeProvider(1000),
+                    isCompressionEnabled = false,
+                    insertionWorkersPerCollection = 1
                 )
             )
             mms.start()

@@ -60,7 +60,9 @@ internal object MongoMigrationStreamTestConfig {
         mongoToolsPath = MONGO_TOOLS_PATH,
         queueFactory = PerformerProperties.BiqQueueFactoryType,
         dumpReadPreference = ReadPreference.primary(),
-        batchSizeProvider = ConstantValueBatchSizeProvider(1000)
+        batchSizeProvider = ConstantValueBatchSizeProvider(1000),
+        isCompressionEnabled = false,
+        insertionWorkersPerCollection = 1,
     )
 
     private fun defaultCollectionsProperties() = CollectionsProperties(
