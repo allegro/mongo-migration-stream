@@ -44,12 +44,19 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PRIVATE_KEY_PASSWORD: ${{ secrets.GPG_PRIVATE_KEY_PASSWORD }}
 
+      - name: Log new version
+        id: 'next-version'
+        run: |
+          NEW_MMS_VERSION="`./gradlew -q cV -Prelease.quiet`"
+          echo "new_mms_version=$NEW_MMS_VERSION" >> $GITHUB_OUTPUT
+          echo "New mongo-migration-stream version: ${NEW_MMS_VERSION}"
+
       - name: Build fatJar
         if: github.ref == 'refs/heads/main'
         run: ./gradlew :mongo-migration-stream-cli:main shadowJar
 
       - name: Create release on GitHub
         if: github.ref == 'refs/heads/main'
-        run: gh release create --generate-notes ./mongo-migration-stream-cli/build/libs/mongo-migration-stream-cli.jar
+        run: gh release create ${{ steps.next-version.outputs.new_mms_version }} --generate-notes ./mongo-migration-stream-cli/build/libs/mongo-migration-stream-cli.jar
         env:
           GH_TOKEN: ${{ github.token }}
