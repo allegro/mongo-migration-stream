@@ -17,7 +17,7 @@ awaitility = "4.2.0"
 guava = "32.1.3-jre"
 micrometer = "1.9.3"
 commons = "3.12.0"
-log4j = "1.7.36"
+log4j = "2.0.12"
 nexus = "1.3.0"
 bigqueue = "0.7.0"
 
