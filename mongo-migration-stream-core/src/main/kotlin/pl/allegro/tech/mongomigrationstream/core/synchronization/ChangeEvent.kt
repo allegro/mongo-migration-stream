@@ -2,7 +2,6 @@ package pl.allegro.tech.mongomigrationstream.core.synchronization
 
 import com.mongodb.DBRefCodecProvider
 import com.mongodb.client.model.DeleteOneModel
-import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOneModel
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOneModel
