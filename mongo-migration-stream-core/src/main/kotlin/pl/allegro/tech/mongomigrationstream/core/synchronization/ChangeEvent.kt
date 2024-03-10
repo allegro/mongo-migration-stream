@@ -2,7 +2,6 @@ package pl.allegro.tech.mongomigrationstream.core.synchronization
 
 import com.mongodb.DBRefCodecProvider
 import com.mongodb.client.model.DeleteOneModel
-import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOneModel
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOneModel
@@ -42,7 +41,6 @@ internal sealed class ChangeEvent(
         null
     }
 
-    protected fun idFilter() = Filters.eq("_id", documentKey.getValue("_id"))
     protected abstract fun toWriteModelImpl(): WriteModel<BsonDocument>
 
     companion object {
@@ -89,7 +87,7 @@ internal data class InsertReplaceChangeEvent(
     }
 
     override fun toWriteModelImpl(): WriteModel<BsonDocument> = ReplaceOneModel(
-        idFilter(),
+        documentKey,
         document!!,
         ReplaceOptions().upsert(true)
     )
@@ -107,7 +105,7 @@ internal data class DeleteChangeEvent(
             )
     }
 
-    override fun toWriteModelImpl(): WriteModel<BsonDocument> = DeleteOneModel(idFilter())
+    override fun toWriteModelImpl(): WriteModel<BsonDocument> = DeleteOneModel(documentKey)
 }
 
 internal data class UpdateChangeEvent(
@@ -132,7 +130,7 @@ internal data class UpdateChangeEvent(
     }
 
     override fun toWriteModelImpl(): WriteModel<BsonDocument> = UpdateOneModel(
-        idFilter(),
+        documentKey,
         Updates.combine(
             *updatedFields.entries.map { Updates.set(it.key, it.value) }.toTypedArray(),
             *removedFields.map { Updates.unset(it) }.toTypedArray()
