@@ -13,11 +13,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 import com.mongodb.reactivestreams.client.MongoClient as ReactiveMongoClient
 import com.mongodb.reactivestreams.client.MongoClients as ReactiveMongoClients
 
-private const val TIMEOUT = 10
-
 internal object MongoClientFactory {
-    private val mongoTimeout = TIMEOUT to SECONDS
-
     internal fun buildClient(
         mongoProperties: MongoProperties,
         meterRegistry: MeterRegistry
@@ -34,11 +30,11 @@ internal object MongoClientFactory {
     ): MongoClientSettings = MongoClientSettings.builder()
         .applyConnectionString(ConnectionString(mongoProperties.uri))
         .applyToSocketSettings {
-            it.connectTimeout(mongoTimeout.first, mongoTimeout.second)
-            it.readTimeout(mongoTimeout.first, mongoTimeout.second)
+            it.connectTimeout(mongoProperties.timeoutProperties.connectTimeout.seconds.toInt(), SECONDS)
+            it.readTimeout(mongoProperties.timeoutProperties.readTimeout.seconds.toInt(), SECONDS)
         }
         .applyToClusterSettings {
-            it.serverSelectionTimeout(mongoTimeout.first.toLong(), mongoTimeout.second)
+            it.serverSelectionTimeout(mongoProperties.timeoutProperties.serverSelectionTimeout.seconds, SECONDS)
         }
         .addCommandListener(MongoMetricsCommandListener(meterRegistry))
         .applyToConnectionPoolSettings {
