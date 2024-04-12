@@ -40,6 +40,10 @@ internal object MongoClientFactory {
         .applyToConnectionPoolSettings {
             it.addConnectionPoolListener(MongoMetricsConnectionPoolListener(meterRegistry))
         }
+        .applyToConnectionPoolSettings {
+            it.maxConnectionIdleTime(mongoProperties.timeoutProperties.maxConnectionIdleTime.seconds, SECONDS)
+            it.maxWaitTime(mongoProperties.timeoutProperties.maxWaitTime.seconds, SECONDS)
+        }
         .let {
             if (mongoProperties.authenticationProperties != null) it.credential(
                 MongoCredential.createCredential(

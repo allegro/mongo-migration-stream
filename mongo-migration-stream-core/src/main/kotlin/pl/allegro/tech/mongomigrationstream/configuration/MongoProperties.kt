@@ -22,12 +22,16 @@ data class MongoProperties(
         val connectTimeout: Duration,
         val readTimeout: Duration,
         val serverSelectionTimeout: Duration,
+        val maxConnectionIdleTime: Duration,
+        val maxWaitTime: Duration,
     ) {
         companion object {
             val DEFAULT = MongoTimeoutProperties(
                 connectTimeout = DEFAULT_MONGO_TIMEOUT,
                 readTimeout = DEFAULT_MONGO_TIMEOUT,
                 serverSelectionTimeout = DEFAULT_MONGO_TIMEOUT,
+                maxConnectionIdleTime = DEFAULT_MONGO_TIMEOUT,
+                maxWaitTime = DEFAULT_MONGO_TIMEOUT,
             )
         }
     }
