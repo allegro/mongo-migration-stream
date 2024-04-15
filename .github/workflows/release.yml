@@ -26,7 +26,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/wrapper-validation-action@v3
 
       - name: Release
         if: ${{ github.ref == 'refs/heads/main' && github.event.inputs.createNewRelease != 'false'}}
