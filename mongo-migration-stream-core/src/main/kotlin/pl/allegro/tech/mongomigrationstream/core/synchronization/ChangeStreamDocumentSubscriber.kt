@@ -9,6 +9,7 @@ import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import pl.allegro.tech.mongomigrationstream.core.metrics.MigrationMetrics
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
+import pl.allegro.tech.mongomigrationstream.core.sharding.ShardingInfo
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.FailedEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateInfo
 
@@ -17,6 +18,7 @@ private val logger = KotlinLogging.logger {}
 internal class ChangeStreamDocumentSubscriber(
     private val sourceToDestination: SourceToDestination,
     private val stateInfo: StateInfo,
+    private val shardingInfo: ShardingInfo,
     private val eventConsumer: EventConsumer,
     meterRegistry: MeterRegistry,
 ) : Subscriber<ChangeStreamDocument<BsonDocument>> {
@@ -37,7 +39,12 @@ internal class ChangeStreamDocumentSubscriber(
 
     override fun onNext(rawEvent: ChangeStreamDocument<BsonDocument>) {
         counter.increment()
-        eventConsumer.saveEventToLocalQueue(ChangeEvent.fromMongoChangeStreamDocument(rawEvent))
+        eventConsumer.saveEventToLocalQueue(
+            ChangeEvent.fromMongoChangeStreamDocument(
+                rawEvent,
+                shardingInfo.collectionShardingKey[sourceToDestination.destination]
+            )
+        )
     }
 
     override fun onError(cause: Throwable) {

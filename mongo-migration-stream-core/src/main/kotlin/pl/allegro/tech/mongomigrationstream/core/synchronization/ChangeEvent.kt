@@ -44,9 +44,12 @@ internal sealed class ChangeEvent(
     protected abstract fun toWriteModelImpl(): WriteModel<BsonDocument>
 
     companion object {
-        fun fromMongoChangeStreamDocument(changeStreamDocument: ChangeStreamDocument<BsonDocument>): ChangeEvent =
+        fun fromMongoChangeStreamDocument(
+            changeStreamDocument: ChangeStreamDocument<BsonDocument>,
+            shardingKey: String?
+        ): ChangeEvent =
             when (changeStreamDocument.operationType) {
-                INSERT, REPLACE -> InsertReplaceChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
+                INSERT, REPLACE -> InsertReplaceChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument, shardingKey)
                 UPDATE -> UpdateChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
                 DELETE -> DeleteChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
                 else -> throw IllegalArgumentException("Not supported operation type: [${changeStreamDocument.operationType}]")
@@ -75,15 +78,27 @@ internal data class InsertReplaceChangeEvent(
             )
         )
 
-        fun fromMongoChangeStreamDocument(changeStreamDocument: ChangeStreamDocument<BsonDocument>): InsertReplaceChangeEvent =
+        fun fromMongoChangeStreamDocument(
+            changeStreamDocument: ChangeStreamDocument<BsonDocument>,
+            shardingKey: String?
+        ): InsertReplaceChangeEvent =
             InsertReplaceChangeEvent(
                 changeStreamDocument.operationType,
-                changeStreamDocument.documentKey!!,
+                upsertKey(changeStreamDocument.documentKey!!, shardingKey),
                 changeStreamDocument.fullDocument?.toBsonDocument(
                     BsonDocument::class.java,
                     codecRegistry
                 )
             )
+
+        // This addresses "Failed to target upsert by query :: could not extract exact shard key" error for sharded destination collections
+        // https://www.mongodb.com/docs/manual/reference/method/db.collection.update/#sharded-collections
+        private fun upsertKey(documentKey: BsonDocument, shardingKey: String?): BsonDocument {
+            if (shardingKey == null) return documentKey // When no shardingKey, don't change documentKey
+            if (documentKey.containsKey(shardingKey)) return documentKey // When sharding key is already in documentKey, don't change documentKey
+            return documentKey.append(shardingKey, null) // When there is no shardingKey, add "shardingKey: null" to documentKey
+        }
+
     }
 
     override fun toWriteModelImpl(): WriteModel<BsonDocument> = ReplaceOneModel(

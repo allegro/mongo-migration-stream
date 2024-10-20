@@ -13,6 +13,7 @@ import pl.allegro.tech.mongomigrationstream.core.performer.ResumableSynchronizer
 import pl.allegro.tech.mongomigrationstream.core.performer.Synchronizer
 import pl.allegro.tech.mongomigrationstream.core.performer.Transfer
 import pl.allegro.tech.mongomigrationstream.core.queue.EventQueue
+import pl.allegro.tech.mongomigrationstream.core.sharding.ShardingInfo
 import pl.allegro.tech.mongomigrationstream.core.state.StateInfo
 import pl.allegro.tech.mongomigrationstream.core.synchronization.BatchSizeProvider
 import pl.allegro.tech.mongomigrationstream.core.synchronization.ChangeEvent
@@ -34,11 +35,12 @@ internal object PerformerFactory {
         mongoDbClients: MongoDbClients,
         queues: Map<SourceToDestination, EventQueue<ChangeEvent>>,
         stateInfo: StateInfo,
+        shardingInfo: ShardingInfo,
         meterRegistry: MeterRegistry
     ): List<Performer> {
         val passwordConfigFiles = createMongoToolsAuthConfig(properties)
         val allPerformers = properties.sourceToDestinationMapping.map {
-            createPerformer(properties, it, queues[it]!!, mongoDbClients, passwordConfigFiles, stateInfo, meterRegistry)
+            createPerformer(properties, it, queues[it]!!, mongoDbClients, passwordConfigFiles, stateInfo, shardingInfo, meterRegistry)
         }
         return allPerformers
     }
@@ -65,6 +67,7 @@ internal object PerformerFactory {
         mongoDbClients: MongoDbClients,
         passwordConfigFiles: PasswordConfigFiles,
         stateInfo: StateInfo,
+        shardingInfo: ShardingInfo,
         meterRegistry: MeterRegistry
     ): Performer {
         val sourceToLocalSynchronizer: Synchronizer = createSourceToLocalSynchronizer(
@@ -73,6 +76,7 @@ internal object PerformerFactory {
             mongoDbClients,
             queue,
             stateInfo,
+            shardingInfo,
             meterRegistry
         )
         val localToDestinationSynchronizer: ResumableSynchronizer = createLocalToDestinationSynchronizer(
@@ -143,6 +147,7 @@ internal object PerformerFactory {
         mongoDbClients: MongoDbClients,
         queue: EventQueue<ChangeEvent>,
         stateInfo: StateInfo,
+        shardingInfo: ShardingInfo,
         meterRegistry: MeterRegistry
     ): Synchronizer = if (shouldPerformSynchronization) SourceToLocalSynchronizer(
         sourceToDestination,
@@ -150,6 +155,7 @@ internal object PerformerFactory {
         mongoDbClients.reactiveSourceDatabase,
         queue,
         stateInfo,
+        shardingInfo,
         meterRegistry
     ) else NoOpSynchronizer()
 
