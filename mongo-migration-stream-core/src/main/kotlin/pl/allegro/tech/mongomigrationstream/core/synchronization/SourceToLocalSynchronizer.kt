@@ -11,12 +11,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import org.bson.BsonDocument
 import pl.allegro.tech.mongomigrationstream.core.concurrency.MigrationExecutors
-import pl.allegro.tech.mongomigrationstream.core.mongo.DbCollection
 import pl.allegro.tech.mongomigrationstream.core.mongo.SourceToDestination
 import pl.allegro.tech.mongomigrationstream.core.performer.SynchronizationResult
 import pl.allegro.tech.mongomigrationstream.core.performer.SynchronizationSuccess
 import pl.allegro.tech.mongomigrationstream.core.performer.Synchronizer
 import pl.allegro.tech.mongomigrationstream.core.queue.EventQueue
+import pl.allegro.tech.mongomigrationstream.core.sharding.ShardingInfo
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateEvent.SourceToLocalStartEvent
 import pl.allegro.tech.mongomigrationstream.core.state.StateInfo
@@ -31,6 +31,7 @@ internal class SourceToLocalSynchronizer(
     private val reactiveSourceDb: com.mongodb.reactivestreams.client.MongoDatabase,
     private val queue: EventQueue<ChangeEvent>,
     private val stateInfo: StateInfo,
+    private val shardingInfo: ShardingInfo,
     private val meterRegistry: MeterRegistry
 ) : Synchronizer {
     private val executor: ExecutorService = MigrationExecutors.createSourceToLocalExecutor(sourceToDestination.source)
@@ -59,15 +60,16 @@ internal class SourceToLocalSynchronizer(
                 .watch(listOf(Aggregates.match(Filters.`in`("operationType", synchronizedOperations))), BsonDocument::class.java)
                 .fullDocument(FullDocument.DEFAULT)
 
-        val changeStreamSubscriber = ChangeStreamDocumentSubscriber(sourceToDestination, stateInfo, eventConsumer, meterRegistry)
+        val changeStreamSubscriber =
+            ChangeStreamDocumentSubscriber(sourceToDestination, stateInfo, shardingInfo, eventConsumer, meterRegistry)
         reactiveSubscribers.add(changeStreamSubscriber)
 
         changeStreamPublisher.subscribe(changeStreamSubscriber)
     }
 
-    private fun performCollectionSynchronization(dbCollection: DbCollection, eventConsumer: EventConsumer) {
+    private fun performCollectionSynchronization(sourceToDestination: SourceToDestination, eventConsumer: EventConsumer) {
         val collectionCursor: MongoCursor<ChangeStreamDocument<BsonDocument>> =
-            sourceDb.getCollection(dbCollection.collectionName, BsonDocument::class.java)
+            sourceDb.getCollection(sourceToDestination.source.collectionName, BsonDocument::class.java)
                 .watch(listOf(Aggregates.match(Filters.`in`("operationType", synchronizedOperations))))
                 .fullDocument(FullDocument.DEFAULT)
                 .iterator()
@@ -78,7 +80,12 @@ internal class SourceToLocalSynchronizer(
             while (shouldSynchronize.get()) {
                 runCatching {
                     val event: ChangeStreamDocument<BsonDocument> = collectionCursor.next()
-                    eventConsumer.saveEventToLocalQueue(ChangeEvent.fromMongoChangeStreamDocument(event))
+                    eventConsumer.saveEventToLocalQueue(
+                        ChangeEvent.fromMongoChangeStreamDocument(
+                            event,
+                            shardingInfo.collectionShardingKey[sourceToDestination.destination]
+                        )
+                    )
                 }.onFailure { logger.error(it) { "Error during source to local synchronization" } }
             }
         }

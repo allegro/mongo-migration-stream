@@ -2,7 +2,6 @@ package pl.allegro.tech.mongomigrationstream.core.synchronization
 
 import com.mongodb.DBRefCodecProvider
 import com.mongodb.client.model.DeleteOneModel
-import com.mongodb.client.model.InsertOneModel
 import com.mongodb.client.model.ReplaceOneModel
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.UpdateOneModel
@@ -16,6 +15,7 @@ import com.mongodb.client.model.changestream.OperationType.REPLACE
 import com.mongodb.client.model.changestream.OperationType.UPDATE
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.BsonDocument
+import org.bson.BsonNull
 import org.bson.codecs.BsonCodecProvider
 import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DocumentCodecProvider
@@ -45,10 +45,12 @@ internal sealed class ChangeEvent(
     protected abstract fun toWriteModelImpl(): WriteModel<BsonDocument>
 
     companion object {
-        fun fromMongoChangeStreamDocument(changeStreamDocument: ChangeStreamDocument<BsonDocument>): ChangeEvent =
+        fun fromMongoChangeStreamDocument(
+            changeStreamDocument: ChangeStreamDocument<BsonDocument>,
+            shardingKey: String?
+        ): ChangeEvent =
             when (changeStreamDocument.operationType) {
-                INSERT -> InsertChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
-                REPLACE -> ReplaceChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
+                INSERT, REPLACE -> InsertReplaceChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument, shardingKey)
                 UPDATE -> UpdateChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
                 DELETE -> DeleteChangeEvent.fromMongoChangeStreamDocument(changeStreamDocument)
                 else -> throw IllegalArgumentException("Not supported operation type: [${changeStreamDocument.operationType}]")
@@ -56,58 +58,47 @@ internal sealed class ChangeEvent(
     }
 }
 
-private val writeCodecProviders = listOf(
-    ValueCodecProvider(),
-    BsonValueCodecProvider(),
-    DocumentCodecProvider(),
-    IterableCodecProvider(),
-    MapCodecProvider(),
-    Jsr310CodecProvider(),
-    JsonObjectCodecProvider(),
-    BsonCodecProvider(),
-    EnumCodecProvider(),
-    DBRefCodecProvider() // DBRefCodecProvider is missing in DEFAULT_CODEC_REGISTRY
-)
-
-internal data class InsertChangeEvent(
+internal data class InsertReplaceChangeEvent(
     override val operationType: OperationType,
     override val documentKey: BsonDocument,
     val document: BsonDocument?,
 ) : ChangeEvent(operationType, documentKey) {
     companion object {
-        private val codecRegistry: CodecRegistry = fromProviders(writeCodecProviders)
+        private val codecRegistry: CodecRegistry = fromProviders(
+            listOf(
+                ValueCodecProvider(),
+                BsonValueCodecProvider(),
+                DocumentCodecProvider(),
+                IterableCodecProvider(),
+                MapCodecProvider(),
+                Jsr310CodecProvider(),
+                JsonObjectCodecProvider(),
+                BsonCodecProvider(),
+                EnumCodecProvider(),
+                DBRefCodecProvider() // DBRefCodecProvider is missing in DEFAULT_CODEC_REGISTRY
+            )
+        )
 
-        fun fromMongoChangeStreamDocument(changeStreamDocument: ChangeStreamDocument<BsonDocument>): InsertChangeEvent =
-            InsertChangeEvent(
+        fun fromMongoChangeStreamDocument(
+            changeStreamDocument: ChangeStreamDocument<BsonDocument>,
+            shardingKey: String?
+        ): InsertReplaceChangeEvent =
+            InsertReplaceChangeEvent(
                 changeStreamDocument.operationType,
-                changeStreamDocument.documentKey!!,
+                upsertKey(changeStreamDocument.documentKey!!, shardingKey),
                 changeStreamDocument.fullDocument?.toBsonDocument(
                     BsonDocument::class.java,
                     codecRegistry
                 )
             )
-    }
 
-    override fun toWriteModelImpl(): WriteModel<BsonDocument> = InsertOneModel(document!!)
-}
-
-internal data class ReplaceChangeEvent(
-    override val operationType: OperationType,
-    override val documentKey: BsonDocument,
-    val document: BsonDocument?,
-) : ChangeEvent(operationType, documentKey) {
-    companion object {
-        private val codecRegistry: CodecRegistry = fromProviders(writeCodecProviders)
-
-        fun fromMongoChangeStreamDocument(changeStreamDocument: ChangeStreamDocument<BsonDocument>): ReplaceChangeEvent =
-            ReplaceChangeEvent(
-                changeStreamDocument.operationType,
-                changeStreamDocument.documentKey!!,
-                changeStreamDocument.fullDocument?.toBsonDocument(
-                    BsonDocument::class.java,
-                    codecRegistry
-                )
-            )
+        // This addresses "Failed to target upsert by query :: could not extract exact shard key" error for sharded destination collections
+        // https://www.mongodb.com/docs/manual/reference/method/db.collection.update/#sharded-collections
+        private fun upsertKey(documentKey: BsonDocument, shardingKey: String?): BsonDocument {
+            if (shardingKey == null) return documentKey // When no shardingKey, don't change documentKey
+            if (documentKey.containsKey(shardingKey)) return documentKey // When sharding key is already in documentKey, don't change documentKey
+            return documentKey.append(shardingKey, BsonNull.VALUE) // When there is no shardingKey, add "shardingKey: null" to documentKey
+        }
     }
 
     override fun toWriteModelImpl(): WriteModel<BsonDocument> = ReplaceOneModel(
