@@ -15,6 +15,7 @@ import com.mongodb.client.model.changestream.OperationType.REPLACE
 import com.mongodb.client.model.changestream.OperationType.UPDATE
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.bson.BsonDocument
+import org.bson.BsonNull
 import org.bson.codecs.BsonCodecProvider
 import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DocumentCodecProvider
@@ -96,7 +97,7 @@ internal data class InsertReplaceChangeEvent(
         private fun upsertKey(documentKey: BsonDocument, shardingKey: String?): BsonDocument {
             if (shardingKey == null) return documentKey // When no shardingKey, don't change documentKey
             if (documentKey.containsKey(shardingKey)) return documentKey // When sharding key is already in documentKey, don't change documentKey
-            return documentKey.append(shardingKey, null) // When there is no shardingKey, add "shardingKey: null" to documentKey
+            return documentKey.append(shardingKey, BsonNull.VALUE) // When there is no shardingKey, add "shardingKey: null" to documentKey
         }
 
     }

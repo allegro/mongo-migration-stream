@@ -18,14 +18,18 @@ internal object ShardingInfoService {
 
     fun getShardingInfoFromDestinationDatabase(mongoDbClients: MongoDbClients): ShardingInfo {
         val shardingInfoMap = mutableMapOf<DbCollection, String>()
-        mongoDbClients.destinationConfigDatabase.getCollection("collections").find()
-            .forEach { document ->
-                val dbCollection: DbCollection? = dbNameDotCollectionNameToDbCollection(document)
-                val shardingKey: String? = getShardingKey(document)
-                if (dbCollection != null && shardingKey != null) {
-                    shardingInfoMap[dbCollection] = shardingKey
+        try {
+            mongoDbClients.destinationConfigDatabase.getCollection("collections").find()
+                .forEach { document ->
+                    val dbCollection: DbCollection? = dbNameDotCollectionNameToDbCollection(document)
+                    val shardingKey: String? = getShardingKey(document)
+                    if (dbCollection != null && shardingKey != null) {
+                        shardingInfoMap[dbCollection] = shardingKey
+                    }
                 }
-            }
+        } catch (exception: Exception) {
+            logger.error(exception) { "Error when getting sharding info from destination database." }
+        }
 
         logger.info { "Info regarding sharding keys on destination database: $shardingInfoMap" }
         return ShardingInfo(shardingInfoMap)
