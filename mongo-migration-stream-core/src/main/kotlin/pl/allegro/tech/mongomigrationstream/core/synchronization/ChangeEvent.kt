@@ -99,7 +99,6 @@ internal data class InsertReplaceChangeEvent(
             if (documentKey.containsKey(shardingKey)) return documentKey // When sharding key is already in documentKey, don't change documentKey
             return documentKey.append(shardingKey, BsonNull.VALUE) // When there is no shardingKey, add "shardingKey: null" to documentKey
         }
-
     }
 
     override fun toWriteModelImpl(): WriteModel<BsonDocument> = ReplaceOneModel(
